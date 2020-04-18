@@ -5,7 +5,7 @@ const SearchForBook = (props) => {
   return (
     <div>
       <div className="d-flex px-3 mt-5 pb-3 justify-content-center align-items-center">
-        <h1 className="logo">BookFinder</h1>
+        <h1 className="logo mr-4">BookFinder</h1>
       </div>
 
       <div className="d-flex px-3 my-3 justify-content-center align-items-center">
@@ -16,7 +16,7 @@ const SearchForBook = (props) => {
           onChange={onChange}
         />
         <div
-          className="search-icon btn btn-dark mx-3 btn-sm"
+          className="search-icon btn btn-dark ml-3 btn-sm"
           onClick={onClick}></div>
       </div>
     </div>

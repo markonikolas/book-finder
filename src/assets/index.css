@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700;900&display=swap');
 
+html {
+  overflow: overlay;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -29,15 +33,41 @@ code {
 .logo {
   font-family: Roboto, sans-serif;
   font-weight: 900;
-  font-size: 3rem;
+  font-size: 3.5rem;
+}
+
+.book-list {
+  justify-content: flex-start;
+}
+
+.book-container {
+  flex: 1 1 200px;
+  max-width: 200px;
+}
+
+.image-container {
+  position: relative;
+  height: 210px;
+}
+
+.book-image {
+  position: absolute;
+  bottom: 0;
+}
+
+.book-details {
+  max-width: 200px;
 }
 
 .book-title {
   font-weight: 300;
-  font-size: 2rem;
-  text-transform: uppercase;
+  font-size: 1.2rem;
 }
 
-.book-image {
-  min-height: 300px;
+.book-authors {
+  font-size: 0.9rem;
+}
+
+.book-categories {
+  font-size: 0.8rem;
 }

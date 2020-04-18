@@ -1,19 +1,44 @@
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+
+import { getData } from './helpers/helpers';
+
 import './assets/App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 
-import axios from 'axios';
 import SearchForBook from './components/searchForBook';
 import BookList from './components/bookList';
+import BookDetailed from './components/bookDetailed';
 
 class BookFinder extends Component {
   constructor(props) {
     super(props);
     this.state = {
       input: '',
+      bookID: '',
+      query: [],
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    const searches = getData(this.state.input);
+    searches
+      .then((res) =>
+        res.map((volume) => {
+          const volumeData = { id: volume.id, data: volume.volumeInfo };
+          return volumeData;
+        }),
+      )
+      .then((book) => {
+        this.setState({
+          query: [...book],
+        });
+      });
+    this.setState({ input: '' });
   }
 
   handleChange(event) {
@@ -22,32 +47,35 @@ class BookFinder extends Component {
     });
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    const searches = this.getData();
-    const volumes = searches
-      .then((data) => data.map((volume) => volume.volumeInfo))
-      .then((book) => console.log(book));
-  }
-
-  async getData() {
-    const resp = await axios
-      .get(`https://www.googleapis.com/books/v1/volumes?q=${this.state.input}`)
-      .then((res) => res.data.items);
-    return resp;
+  handleClick(bookID) {
+    this.setState({ bookID });
   }
 
   render() {
-    const { input } = this.state;
+    const { input, query, bookID } = this.state;
     return (
-      <div className=".container-fluid">
-        <SearchForBook
-          input={input}
-          onChange={this.handleChange}
-          onClick={this.handleSubmit}
-        />
-        <BookList volumes="" />
-      </div>
+      <Router>
+        <div className=".container-fluid">
+          <SearchForBook
+            input={input}
+            onChange={this.handleChange}
+            onClick={this.handleSubmit}
+          />
+          <Switch>
+            <Route exact path="/">
+              <BookList volumes={query} onBookClick={this.handleClick} />
+            </Route>
+
+            <Route path={`/${bookID}`}>
+              <BookDetailed
+                volumes={this.state.query.find(
+                  (volume) => volume.id === bookID,
+                )}
+              />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
     );
   }
 }
