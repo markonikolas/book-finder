@@ -8,6 +8,7 @@ const BookDetailed = () => {
   return (
     <div className="container-fluid">
       <img src="" alt="" />
+      <h1>{id}</h1>
     </div>
   );
 };

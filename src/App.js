@@ -20,24 +20,17 @@ class BookFinder extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      activeBook: null,
       input: null,
       query: [],
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleClick = this.handleClick.bind(this);
   }
 
   componentDidMount() {
-    const { query, activeBook } = this.state;
+    const { query } = this.state;
     if (Array.isArray(query) && !query.length) {
       this.setState({ query: JSON.parse(localStorage.getItem('query')) });
-    }
-    if (!activeBook) {
-      this.setState({
-        activeBook: JSON.parse(localStorage.getItem('activeBook')),
-      });
     }
   }
 
@@ -59,12 +52,6 @@ class BookFinder extends PureComponent {
       })
       .then((query) => localStorage.setItem('query', JSON.stringify(query)));
     this.setState({ input: null });
-  }
-
-  handleClick(bookID) {
-    this.setState({
-      activeBook: this.state.query.find((book) => book.id === bookID),
-    });
   }
 
   handleChange(event) {
@@ -95,10 +82,7 @@ class BookFinder extends PureComponent {
                 />
               )}
             />
-            <Route
-              path="/:id"
-              render={(props) => <BookDetailed bookDetails={activeBook} />}
-            />
+            <Route path="/:id" render={(props) => <BookDetailed />} />
           </Switch>
         </div>
       </Router>

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Details = ({ id, title, authors, categories, onBookClick }) => {
+const Details = ({ id, title, authors, categories }) => {
   return (
     <div className="book-details">
       {/* here goes link to the book */}
-      <Link to={`/${id}`} onClick={() => onBookClick(id)}>
+      <Link to={`/${id}`}>
         <h3 className="book-title mb-1">{title}</h3>
       </Link>
       {/* here goes link to authors of the book */}
