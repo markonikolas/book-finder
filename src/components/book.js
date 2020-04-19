@@ -1,25 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
-const Book = ({ data }) => {
+import Thumbnail from './thumbnail';
+import Details from './details';
+
+const Book = ({ data, id, onBookClick }) => {
   const { title, authors, categories, imageLinks = [] } = data;
   return (
-    <div className="p-3 m-3 book-container">
-      <div className="mb-2 image-container">
-        <img
-          className="img-fluid book-image"
-          src={imageLinks.thumbnail}
-          alt={title}
-        />
-      </div>
-
-      <div className="book-details">
-        {/* here goes link to the book */}
-        <h3 className="book-title mb-1">{title}</h3>
-        {/* here goes link to authors of the book */}
-        <h5 className="book-authors mb-1">{authors[0]}</h5>
-        <h6 className="book-categories text-muted">{categories}</h6>
-      </div>
+    <div className="book-container d-flex flex-column flex-fill p-2 m-2">
+      <Thumbnail title={title} imageLinks={imageLinks} />
+      <Details
+        id={id}
+        title={title}
+        authors={authors}
+        categories={categories}
+        onBookClick={onBookClick}
+      />
     </div>
   );
 };

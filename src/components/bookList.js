@@ -1,24 +1,25 @@
 import React from 'react';
 import Book from './book';
-import { Link } from 'react-router-dom';
 
-const BookList = ({ volumes, onBookClick }) => {
-  return (
-    <div className="book-list d-flex p-3 flex-wrap">
-      {volumes.map((volume) => {
-        return (
-          <Link
-            to={`/${volume.id}`}
-            key={volume.id}
-            onClick={() => {
-              onBookClick(volume.id);
-            }}>
-            <Book data={volume.data} />
-          </Link>
-        );
-      })}
-    </div>
-  );
+const BookList = ({ query, onBookClick }) => {
+  if (query) {
+    return (
+      <div className="book-list d-flex flex-row p-3 flex-wrap justify-content-start">
+        {query.map((volume) => {
+          return (
+            <Book
+              key={volume.id}
+              data={volume.data}
+              id={volume.id}
+              onBookClick={onBookClick}
+            />
+          );
+        })}
+      </div>
+    );
+  } else {
+    return [];
+  }
 };
 
 export default BookList;

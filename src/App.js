@@ -1,26 +1,44 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import React, { PureComponent } from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  useParams,
+} from 'react-router-dom';
 
 import { getData } from './helpers/helpers';
 
 import './assets/App.css';
 import 'bootstrap/dist/css/bootstrap.css';
+import 'normalize.css';
 
 import SearchForBook from './components/searchForBook';
 import BookList from './components/bookList';
 import BookDetailed from './components/bookDetailed';
 
-class BookFinder extends Component {
+class BookFinder extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      input: '',
-      bookID: '',
+      activeBook: null,
+      input: null,
       query: [],
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleClick = this.handleClick.bind(this);
+  }
+
+  componentDidMount() {
+    const { query, activeBook } = this.state;
+    if (Array.isArray(query) && !query.length) {
+      this.setState({ query: JSON.parse(localStorage.getItem('query')) });
+    }
+    if (!activeBook) {
+      this.setState({
+        activeBook: JSON.parse(localStorage.getItem('activeBook')),
+      });
+    }
   }
 
   handleSubmit(event) {
@@ -33,12 +51,20 @@ class BookFinder extends Component {
           return volumeData;
         }),
       )
-      .then((book) => {
+      .then((query) => {
         this.setState({
-          query: [...book],
+          query: [...query],
         });
-      });
-    this.setState({ input: '' });
+        return query;
+      })
+      .then((query) => localStorage.setItem('query', JSON.stringify(query)));
+    this.setState({ input: null });
+  }
+
+  handleClick(bookID) {
+    this.setState({
+      activeBook: this.state.query.find((book) => book.id === bookID),
+    });
   }
 
   handleChange(event) {
@@ -47,12 +73,8 @@ class BookFinder extends Component {
     });
   }
 
-  handleClick(bookID) {
-    this.setState({ bookID });
-  }
-
   render() {
-    const { input, query, bookID } = this.state;
+    const { input, activeBook, query = [] } = this.state;
     return (
       <Router>
         <div className=".container-fluid">
@@ -62,17 +84,21 @@ class BookFinder extends Component {
             onClick={this.handleSubmit}
           />
           <Switch>
-            <Route exact path="/">
-              <BookList volumes={query} onBookClick={this.handleClick} />
-            </Route>
-
-            <Route path={`/${bookID}`}>
-              <BookDetailed
-                volumes={this.state.query.find(
-                  (volume) => volume.id === bookID,
-                )}
-              />
-            </Route>
+            <Route
+              exact
+              path="/"
+              render={(props) => (
+                <BookList
+                  {...props}
+                  query={query}
+                  onBookClick={this.handleClick}
+                />
+              )}
+            />
+            <Route
+              path="/:id"
+              render={(props) => <BookDetailed bookDetails={activeBook} />}
+            />
           </Switch>
         </div>
       </Router>
