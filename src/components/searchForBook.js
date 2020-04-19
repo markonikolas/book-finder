@@ -12,7 +12,7 @@ const SearchForBook = (props) => {
         <input
           type="text"
           className="form-control search-input"
-          value={input}
+          defaultValue={input}
           onChange={onChange}
         />
         <div

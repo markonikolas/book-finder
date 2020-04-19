@@ -1,10 +1,10 @@
 import axios from 'axios';
-/* possibly bad practice to pass state to external helper function */
-async function getData(input) {
-  const resp = await axios
-    .get(`https://www.googleapis.com/books/v1/volumes?q=${input}`)
-    .then((res) => res.data.items);
-  return resp;
-}
+
+const getData = async (query) => {
+  const response = await axios
+    .get(`https://www.googleapis.com/books/v1/volumes?q=${query}`)
+    .then((bookDetails) => bookDetails.data.items);
+  return response;
+};
 
 export { getData };

@@ -1,16 +1,36 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { getData } from '../helpers/helpers';
+import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+import { getData, formatData } from '../helpers/helpers';
 
-const BookDetailed = () => {
-  const { id } = useParams();
+class BookDetailed extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      book: null,
+    };
+  }
+  componentDidMount() {
+    const id = this.props.match.params.id;
+    const search = getData(id);
+    search
+      .then((res) =>
+        res.map((volume) => {
+          const volumeData = { id: volume.id, data: volume.volumeInfo };
+          return volumeData;
+        }),
+      )
+      .then((book) => {
+        this.setState({
+          book: [...book],
+        });
+        return book;
+      });
+  }
 
-  return (
-    <div className="container-fluid">
-      <img src="" alt="" />
-      <h1>{id}</h1>
-    </div>
-  );
-};
+  render() {
+    const pageIsLoading = !this.state.book;
+    return pageIsLoading ? 'Loading...' : this.state.book[0].id;
+  }
+}
 
-export default BookDetailed;
+export default withRouter(BookDetailed);

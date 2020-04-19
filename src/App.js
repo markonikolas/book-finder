@@ -1,10 +1,5 @@
 import React, { PureComponent } from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  useParams,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { getData } from './helpers/helpers';
 
@@ -20,7 +15,7 @@ class BookFinder extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      input: null,
+      input: '',
       query: [],
     };
     this.handleChange = this.handleChange.bind(this);
@@ -28,9 +23,17 @@ class BookFinder extends PureComponent {
   }
 
   componentDidMount() {
-    const { query } = this.state;
+    const { input, query } = this.state;
+    const inputQuery = !input ? sessionStorage.getItem('input') : false;
+
+    if (inputQuery) {
+      this.setState({ input: inputQuery });
+    }
+
     if (Array.isArray(query) && !query.length) {
-      this.setState({ query: JSON.parse(localStorage.getItem('query')) });
+      this.setState({
+        query: JSON.parse(sessionStorage.getItem('query')),
+      });
     }
   }
 
@@ -50,8 +53,10 @@ class BookFinder extends PureComponent {
         });
         return query;
       })
-      .then((query) => localStorage.setItem('query', JSON.stringify(query)));
-    this.setState({ input: null });
+      .then((query) => {
+        sessionStorage.setItem('query', JSON.stringify(query));
+        sessionStorage.setItem('input', this.state.input);
+      });
   }
 
   handleChange(event) {
@@ -61,7 +66,7 @@ class BookFinder extends PureComponent {
   }
 
   render() {
-    const { input, activeBook, query = [] } = this.state;
+    const { input, query = [] } = this.state;
     return (
       <Router>
         <div className=".container-fluid">
@@ -82,7 +87,7 @@ class BookFinder extends PureComponent {
                 />
               )}
             />
-            <Route path="/:id" render={(props) => <BookDetailed />} />
+            <Route path="/:id" render={() => <BookDetailed />} />
           </Switch>
         </div>
       </Router>
