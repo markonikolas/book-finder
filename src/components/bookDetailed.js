@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
-import '../assets/spinner.css';
 import BookPage from './bookPage';
-import Spinner from './spinner';
 
 class BookDetailed extends PureComponent {
   constructor(props) {
@@ -12,6 +10,7 @@ class BookDetailed extends PureComponent {
       book: null,
     };
   }
+
   componentDidMount() {
     const id = this.props.match.params.id;
 
@@ -29,8 +28,7 @@ class BookDetailed extends PureComponent {
   }
 
   render() {
-    const pageIsLoading = !this.state.book;
-    return pageIsLoading ? <Spinner /> : <BookPage {...this.state.book} />;
+    return <BookPage {...this.state.book} />;
   }
 }
 

@@ -13,7 +13,7 @@ const getData = async (query) => {
   return response;
 };
 
-const webStorageSupport = () => {
+const getWebStorageSupport = () => {
   try {
     return 'localStorage' in window && window['localStorage'] !== null;
   } catch (e) {
@@ -22,4 +22,12 @@ const webStorageSupport = () => {
   }
 };
 
-export { getData, webStorageSupport };
+const setInput = (input, state, props) => {
+  return { input: input };
+};
+
+const setQuery = (query, state = { query: null }, props) => {
+  return { query: query };
+};
+
+export { getData, getWebStorageSupport, setInput, setQuery };

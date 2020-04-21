@@ -76,3 +76,8 @@ a:hover {
 .book-categories {
   font-size: 0.8rem;
 }
+
+.page-container-image {
+  display: flex;
+  flex-direction: column;
+}

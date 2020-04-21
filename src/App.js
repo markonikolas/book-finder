@@ -1,13 +1,18 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
+import {
+  setInput,
+  setQuery,
+  getData,
+  getWebStorageSupport,
+} from './helpers/helpers';
+
 import './assets/App.css';
+import './assets/spinner.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'normalize.css';
 
-import { getData, webStorageSupport } from './helpers/helpers';
-
-// import Spinner from './components/spinner';
 import BookList from './components/bookList';
 import BookDetailed from './components/bookDetailed';
 import SearchForBook from './components/searchForBook';
@@ -18,85 +23,107 @@ class BookFinder extends Component {
     this.state = {
       input: '',
       query: [],
+      isLoading: true,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.resetStateAndStorage = this.resetStateAndStorage.bind(this);
+    this.handleLoading = this.handleLoading.bind(this);
   }
 
   componentDidMount() {
     const { input, query } = this.state;
     const inputQuery =
-      !input && webStorageSupport() ? sessionStorage.getItem('input') : false;
+      !input && getWebStorageSupport()
+        ? sessionStorage.getItem('input')
+        : false;
 
     if (inputQuery) {
-      this.setState({ input: inputQuery });
+      this.setState(setInput(inputQuery));
     }
 
-    if (Array.isArray(query) && !query.length && webStorageSupport()) {
-      this.setState({
-        query: JSON.parse(sessionStorage.getItem('query')),
-      });
+    if (Array.isArray(query) && !query.length && getWebStorageSupport()) {
+      const queryValid = sessionStorage.getItem('query');
+      this.setState(setQuery(JSON.parse(queryValid)));
+      setTimeout(() => {
+        this.setState(() => ({ isLoading: false }));
+      }, 1000);
     }
-    this.setState({ isLoading: false });
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.state !== nextProps ? true : false;
   }
 
   handleSubmit(event) {
     event.preventDefault();
     const { input } = this.state;
-    const searches = getData(input);
+    if (!input) return;
 
-    searches
+    getData(input)
       .then((query) => {
-        this.setState({
-          query: [...query],
-        });
+        this.setState(setQuery([...query], this.state.query));
         return query;
       })
+      .catch((error) => {
+        console.log(error);
+      })
       .then((query) => {
-        if (webStorageSupport()) {
+        if (getWebStorageSupport()) {
           sessionStorage.setItem('query', JSON.stringify(query));
           sessionStorage.setItem('input', input);
         }
+        this.setState(() => ({ isLoading: true }));
+      })
+      .catch((err) => {
+        console.log(err);
       });
   }
 
   handleChange(event) {
-    this.setState({
-      input: event.target.value,
-    });
+    this.setState(setInput(event.target.value));
   }
 
+  resetStateAndStorage() {
+    // sessionStorage.removeItem('input');
+    // this.setState(setInput(''));
+    sessionStorage.removeItem('query');
+    this.setState(setQuery(null));
+  }
+
+  handleLoading() {
+    this.setState(() => ({ isLoading: false }));
+  }
   render() {
     const { input, query = [] } = this.state;
-
     return (
-      <Router>
-        <div className=".container-fluid">
-          <SearchForBook
-            input={input}
-            onChange={this.handleChange}
-            onClick={this.handleSubmit}
-          />
-          <Switch>
-            <Route
-              exact
-              path="/"
-              render={(props) => (
-                <BookList
-                  {...props}
-                  query={query}
-                  onBookClick={this.handleClick}
-                />
-              )}
+      <Fragment>
+        <Router>
+          <div className=".container-fluid">
+            <SearchForBook
+              input={input}
+              onChange={this.handleChange}
+              onClick={this.handleSubmit}
+              onReset={this.resetStateAndStorage}
             />
-            {/* implement spinner when searching 
-              fix unneccesery renders
-              add selecting books, adding to fav basket, removing from basket etc...
-            */}
-            <Route path="/:id" render={() => <BookDetailed />} />
-          </Switch>
-        </div>
-      </Router>
+            <Switch>
+              <Route
+                exact
+                path="/"
+                render={(props) => (
+                  <BookList
+                    {...props}
+                    query={query}
+                    onBookClick={this.handleClick}
+                  />
+                )}
+              />
+
+              <Route path="/:id" render={() => <BookDetailed />} />
+            </Switch>
+          </div>
+        </Router>
+      </Fragment>
     );
   }
 }
