@@ -1,17 +1,18 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-
-import { getData } from './helpers/helpers';
 
 import './assets/App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'normalize.css';
 
-import SearchForBook from './components/searchForBook';
+import { getData, webStorageSupport } from './helpers/helpers';
+
+// import Spinner from './components/spinner';
 import BookList from './components/bookList';
 import BookDetailed from './components/bookDetailed';
+import SearchForBook from './components/searchForBook';
 
-class BookFinder extends PureComponent {
+class BookFinder extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -24,29 +25,27 @@ class BookFinder extends PureComponent {
 
   componentDidMount() {
     const { input, query } = this.state;
-    const inputQuery = !input ? sessionStorage.getItem('input') : false;
+    const inputQuery =
+      !input && webStorageSupport() ? sessionStorage.getItem('input') : false;
 
     if (inputQuery) {
       this.setState({ input: inputQuery });
     }
 
-    if (Array.isArray(query) && !query.length) {
+    if (Array.isArray(query) && !query.length && webStorageSupport()) {
       this.setState({
         query: JSON.parse(sessionStorage.getItem('query')),
       });
     }
+    this.setState({ isLoading: false });
   }
 
   handleSubmit(event) {
     event.preventDefault();
-    const searches = getData(this.state.input);
+    const { input } = this.state;
+    const searches = getData(input);
+
     searches
-      .then((res) =>
-        res.map((volume) => {
-          const volumeData = { id: volume.id, data: volume.volumeInfo };
-          return volumeData;
-        }),
-      )
       .then((query) => {
         this.setState({
           query: [...query],
@@ -54,8 +53,10 @@ class BookFinder extends PureComponent {
         return query;
       })
       .then((query) => {
-        sessionStorage.setItem('query', JSON.stringify(query));
-        sessionStorage.setItem('input', this.state.input);
+        if (webStorageSupport()) {
+          sessionStorage.setItem('query', JSON.stringify(query));
+          sessionStorage.setItem('input', input);
+        }
       });
   }
 
@@ -67,6 +68,7 @@ class BookFinder extends PureComponent {
 
   render() {
     const { input, query = [] } = this.state;
+
     return (
       <Router>
         <div className=".container-fluid">
@@ -87,6 +89,10 @@ class BookFinder extends PureComponent {
                 />
               )}
             />
+            {/* implement spinner when searching 
+              fix unneccesery renders
+              add selecting books, adding to fav basket, removing from basket etc...
+            */}
             <Route path="/:id" render={() => <BookDetailed />} />
           </Switch>
         </div>

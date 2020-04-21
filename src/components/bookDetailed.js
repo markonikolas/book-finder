@@ -1,8 +1,11 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { withRouter } from 'react-router-dom';
-import { getData, formatData } from '../helpers/helpers';
+import axios from 'axios';
+import '../assets/spinner.css';
+import BookPage from './bookPage';
+import Spinner from './spinner';
 
-class BookDetailed extends Component {
+class BookDetailed extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -11,25 +14,23 @@ class BookDetailed extends Component {
   }
   componentDidMount() {
     const id = this.props.match.params.id;
-    const search = getData(id);
-    search
-      .then((res) =>
-        res.map((volume) => {
-          const volumeData = { id: volume.id, data: volume.volumeInfo };
-          return volumeData;
-        }),
-      )
-      .then((book) => {
-        this.setState({
-          book: [...book],
+
+    (async (id) => {
+      const response = await axios
+        .get(`https://www.googleapis.com/books/v1/volumes/${id}`)
+        .then((bookDetails) => bookDetails.data)
+        .then((data) => {
+          this.setState({
+            book: data.volumeInfo,
+          });
         });
-        return book;
-      });
+      return response;
+    })(id);
   }
 
   render() {
     const pageIsLoading = !this.state.book;
-    return pageIsLoading ? 'Loading...' : this.state.book[0].id;
+    return pageIsLoading ? <Spinner /> : <BookPage {...this.state.book} />;
   }
 }
 
