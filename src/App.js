@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
 
 import {
   setInput,
@@ -8,7 +8,6 @@ import {
   getWebStorageSupport,
 } from './helpers/helpers';
 
-import './assets/App.css';
 import './assets/spinner.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'normalize.css';
@@ -16,6 +15,7 @@ import 'normalize.css';
 import BookList from './components/bookList';
 import BookDetailed from './components/bookDetailed';
 import SearchForBook from './components/searchForBook';
+import Spinner from './components/spinner';
 
 class BookFinder extends Component {
   constructor(props) {
@@ -27,8 +27,6 @@ class BookFinder extends Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.resetStateAndStorage = this.resetStateAndStorage.bind(this);
-    this.handleLoading = this.handleLoading.bind(this);
   }
 
   componentDidMount() {
@@ -37,11 +35,9 @@ class BookFinder extends Component {
       !input && getWebStorageSupport()
         ? sessionStorage.getItem('input')
         : false;
-
     if (inputQuery) {
       this.setState(setInput(inputQuery));
     }
-
     if (Array.isArray(query) && !query.length && getWebStorageSupport()) {
       const queryValid = sessionStorage.getItem('query');
       this.setState(setQuery(JSON.parse(queryValid)));
@@ -51,18 +47,19 @@ class BookFinder extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state !== nextProps ? true : false;
-  }
-
   handleSubmit(event) {
     event.preventDefault();
     const { input } = this.state;
+
     if (!input) return;
 
+    this.setState(() => ({ isLoading: true }));
     getData(input)
       .then((query) => {
-        this.setState(setQuery([...query], this.state.query));
+        this.setState(setQuery([...query], this.state.query), () => {
+          this.props.history.push('/');
+          this.setState(() => ({ isLoading: false }));
+        });
         return query;
       })
       .catch((error) => {
@@ -73,7 +70,6 @@ class BookFinder extends Component {
           sessionStorage.setItem('query', JSON.stringify(query));
           sessionStorage.setItem('input', input);
         }
-        this.setState(() => ({ isLoading: true }));
       })
       .catch((err) => {
         console.log(err);
@@ -84,48 +80,38 @@ class BookFinder extends Component {
     this.setState(setInput(event.target.value));
   }
 
-  resetStateAndStorage() {
-    // sessionStorage.removeItem('input');
-    // this.setState(setInput(''));
-    sessionStorage.removeItem('query');
-    this.setState(setQuery(null));
-  }
-
-  handleLoading() {
-    this.setState(() => ({ isLoading: false }));
-  }
   render() {
-    const { input, query = [] } = this.state;
+    const { input, query = [], isLoading } = this.state;
     return (
       <Fragment>
-        <Router>
-          <div className=".container-fluid">
-            <SearchForBook
-              input={input}
-              onChange={this.handleChange}
-              onClick={this.handleSubmit}
-              onReset={this.resetStateAndStorage}
-            />
-            <Switch>
-              <Route
-                exact
-                path="/"
-                render={(props) => (
+        <div className=".container-fluid">
+          <SearchForBook
+            input={input}
+            onChange={this.handleChange}
+            onClick={this.handleSubmit}
+          />
+          <Switch>
+            <Route
+              exact
+              path="/"
+              render={(props) =>
+                isLoading ? (
+                  <Spinner />
+                ) : (
                   <BookList
                     {...props}
                     query={query}
                     onBookClick={this.handleClick}
                   />
-                )}
-              />
-
-              <Route path="/:id" render={() => <BookDetailed />} />
-            </Switch>
-          </div>
-        </Router>
+                )
+              }
+            />
+            <Route path="/:id" render={() => <BookDetailed />} />
+          </Switch>
+        </div>
       </Fragment>
     );
   }
 }
 
-export default BookFinder;
+export default withRouter(BookFinder);

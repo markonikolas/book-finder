@@ -1,14 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 const SearchForBook = (props) => {
-  const { input, onChange, onClick, onReset } = props;
+  const { input, onChange, onClick } = props;
   return (
     <div>
       <div className="d-flex px-3 mt-5 pb-3 justify-content-center align-items-center">
-        <h1 className="logo" onClick={onReset}>
-          BookFinder
-        </h1>
+        <h1 className="logo">BookFinder</h1>
       </div>
 
       <div className="d-flex px-3 my-3 justify-content-center align-items-center">
@@ -28,4 +26,4 @@ const SearchForBook = (props) => {
   );
 };
 
-export default SearchForBook;
+export default withRouter(SearchForBook);
