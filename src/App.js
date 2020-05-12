@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { Switch, Route, withRouter } from 'react-router-dom';
-
 import {
   setInput,
   setQuery,
@@ -11,6 +10,7 @@ import {
 import './assets/spinner.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'normalize.css';
+import 'animate.css';
 
 import BookList from './components/bookList';
 import BookDetailed from './components/bookDetailed';
@@ -84,7 +84,7 @@ class BookFinder extends Component {
     const { input, query = [], isLoading } = this.state;
     return (
       <Fragment>
-        <div className=".container-fluid">
+        <div className=".container-fluid animate fadeIn">
           <SearchForBook
             input={input}
             onChange={this.handleChange}

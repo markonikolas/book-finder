@@ -8,7 +8,11 @@ const Thumbnail = (props) => {
 
   return (
     <div className="mb-2 image-container">
-      <img className="img-fluid book-image" src={thumbnail} alt={title} />
+      <img
+        className="img-fluid book-image animate__animated animate__fadeIn"
+        src={thumbnail}
+        alt={title}
+      />
     </div>
   );
 };
