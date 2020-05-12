@@ -57,7 +57,7 @@ class BookFinder extends Component {
     getData(input)
       .then((query) => {
         this.setState(setQuery([...query], this.state.query), () => {
-          this.props.history.push('/');
+          this.props.history.push('/book-finder');
           this.setState(() => ({ isLoading: false }));
         });
         return query;
@@ -92,8 +92,7 @@ class BookFinder extends Component {
           />
           <Switch>
             <Route
-              exact
-              path="/"
+              path="/book-finder"
               render={(props) =>
                 isLoading ? (
                   <Spinner />
