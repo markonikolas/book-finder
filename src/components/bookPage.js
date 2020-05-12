@@ -32,12 +32,13 @@ const BookPage = (props) => {
       setIsLoading(false);
     }, 500);
   }, []);
+
   return (
     <Fragment>
       {isLoading ? (
         <Spinner />
       ) : (
-        <div className="container-fluid d-flex justify-content-center mt-5  animate__animated animate__fadeIn">
+        <div className="container-fluid d-flex justify-content-center mt-5 animate__animated animate__fadeIn">
           <div className="card mb-3" style={{ maxWidth: '540px' }}>
             <div className="row no-gutters">
               <div className="col-md-4 p-4 page-container-image">
